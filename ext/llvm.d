@@ -70,14 +70,16 @@ class LinkIR : UserTask {
 }
 
 
-void addLLVMLib( BuildSet tasks , const string[] src , const string lib_path , const string intermediate_path, const string[] compile_flags ) {
-	auto compile_tasks = makeTasks!( e => new ClangToIR( e , intermediate_path ~ e ~ ".ir" , compile_flags ) )( src ) ;
+Resource addLLVMLib( BuildSet tasks , const string[] src , const string lib_path , const string intermediate_path, const string[] compile_flags ) {
+	auto actual_compile_flags = compile_flags ~ [ "-c"];
+	auto compile_tasks = makeTasks!( e => new ClangToIR( e , intermediate_path ~ e ~ ".ir" , actual_compile_flags ) )( src ) ;
 
 	Resource[] ir_files = map!( e => e.outputs[0] ) ( compile_tasks ).array().dup ;
 
 	tasks ~= compile_tasks ;
-
-	tasks ~= new LinkIR( ir_files , lib_path ) ;	
-
+	
+        auto link_task = new LinkIR( ir_files , lib_path ) ;
+	tasks ~= link_task ;	
+	return link_task.outputs[0];
 }
 
