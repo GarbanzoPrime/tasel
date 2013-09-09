@@ -6,6 +6,7 @@
 
 module tasel.ext.llvm ;
 
+import std.path ;
 import tasel.tasel ;
 import std.process ;
 import std.string ;
@@ -72,7 +73,7 @@ class LinkIR : UserTask {
 
 Resource addLLVMLib( BuildSet tasks , const string[] src , const string lib_path , const string intermediate_path, const string[] compile_flags ) {
 	auto actual_compile_flags = compile_flags ~ [ "-c"];
-	auto compile_tasks = makeTasks!( e => new ClangToIR( e , intermediate_path ~ e ~ ".ir" , actual_compile_flags ) )( src ) ;
+	auto compile_tasks = makeTasks!( e => new ClangToIR( e , intermediate_path.buildPath( e ~ ".ir" ) , actual_compile_flags ) )( src ) ;
 
 	Resource[] ir_files = map!( e => e.outputs[0] ) ( compile_tasks ).array().dup ;
 
